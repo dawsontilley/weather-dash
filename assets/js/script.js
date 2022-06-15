@@ -1,5 +1,5 @@
 var searchBtn =document.querySelector("#search");
-var inputField=document.querySelector("input").value;
+//var inputField=document.querySelector("input").value;
 var Cor  =[44.6475811,-63.5727683];
 var todayEl=document.querySelector("#today");
 var fiveDayEl=document.querySelector("#five-day");
@@ -18,49 +18,70 @@ var checkUV = function(uv){
     }
 };
 var searchCity =function(){
-    if(!inputField){
+    clearCurrent();
+    var myinput=document.querySelector("input").value;
+    console.log(myinput);
+    if(!myinput){
         window.alert("Please Enter Value");
+    }else{
+    getCity(myinput);
     }
-    getCity(inputField);
-    var 
+    createHistory(myinput);
+    
 };
 
 
-var createHistory=function(name,lat_long){
+var createHistory=function(name){
 var histDiv = document.createElement("div");
-histDiv.setAttribute("data-lat",lat_long[0]);
-histDiv.setAttribute("data-long",lat_long[1]);
+//histDiv.setAttribute("data-lat",lat_long[0]);
+//histDiv.setAttribute("data-long",lat_long[1]);
 histDiv.id=name;
+
 histDiv.classList.add("card");
 
 
 var histP = document.createElement("p");
+histP.classList.add("inner");
 histP.innerText=name;
 histDiv.appendChild(histP);
-historyEl.addEventListener("click",handleHistory)
+historyEl.appendChild(histDiv);
+historyEl.addEventListener("click",handleHistory);
 
 }
 
 var clearCurrent= function (){
     var todayDel=document.querySelector(".today-delete");
+    if (!todayDel){
+        return;
+    }
     todayDel.remove();
     for (var z=1;z<6;z++){
     var fiveDel=document.querySelector("#day-"+z);
-    fiveDel.remove();
+        if(fiveDel){
+        fiveDel.remove();
+        }
     }
 };
 
 var handleHistory = function (event){
 event.preventDefault;
+console.log(event.target);
     if (event.target.classList.contains("card")){
         var clickHist=event.target
-        var coordinates=[clickHist.data-lat,clickHist.data_long];
+        //var coordinates=[clickHist.data-lat,clickHist.data_long];
         var name=clickHist.id;
         clearCurrent();
-        getWeather(name,coordinates);
+        getCity(name);
+        
         
     }
-
+    else{
+       var handleP= event.target.parentElement;
+       var name2=handleP.id;
+       console.log(name2);
+       clearCurrent();
+       getCity(name2);
+    }
 
 };
 
@@ -236,11 +257,52 @@ var getCity = function(city) {
 
   var getWeather = function(name,coordinates) {
     // format the github api url
-    
-    var apiUrl = "https://api.openweathermap.org/data/3.0/onecall?lat="+coordinates[0]+"&lon="+coordinates[1]+"&appid=855c07885ee0ba89b4dace39f3c6c5cf";
+    console.log("IN GET WEATHER , Latitude: "+coordinates[0]+"Longitude: "+coordinates[1]);
+    //var apiUrl = "https://api.openweathermap.org/data/3.0/onecall?lat="+coordinates[0]+"&lon="+coordinates[1]+"&appid=21b731edfa8707cb82b913a8b6d8b8fc";
+    //https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}
     //9971c39fce27741076215129d5ba7fbf
+    var fiveURL= "https://api.openweathermap.org/data/2.5/forecast?lat="+coordinates[0]+"&lon="+coordinates[1]+"&units=imperial&appid=21b731edfa8707cb82b913a8b6d8b8fc";
+
+    var currentURL="https://api.openweathermap.org/data/2.5/weather?lat="+coordinates[0]+"&lon="+coordinates[1]+"&units=imperial&appid=21b731edfa8707cb82b913a8b6d8b8fc";
+
+    // THE 5 DAY is here api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
+
+    // CURRENT is here https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
     // make a get request to url
-    fetch(apiUrl)
+    fetch(currentURL)
+      .then(function(response) {
+        // request was successful
+        if (response.ok) {
+          //console.log(response);
+          response.json().then(function(resul) {
+            console.log(resul);
+            // current weather
+            let dt=resul.dt;
+            let temp=resul.main.temp;
+            let humid=resul.main.humidity;
+            let wnd=resul.wind.speed;
+            let uv= 4;
+            //resul.current.uvi;
+            let imgID=resul.weather[0].icon;
+            console.log("Img ID: "+imgID);
+            //let weather=resul.resul.current.weather
+
+            createToday(name,dt,temp,humid,wnd,uv,imgID);
+            // five day forecast
+            //day one
+            
+            
+            //displayRepos(results, user);
+          });
+        } else {
+          alert('Error: Weather not found');
+        }
+      })
+      .catch(function(error) {
+        alert("Unable to connect to current weather");
+      });
+
+      fetch(fiveURL)
       .then(function(response) {
         // request was successful
         if (response.ok) {
@@ -248,33 +310,32 @@ var getCity = function(city) {
           response.json().then(function(resul) {
             console.log(resul);
             // current weather
-            let dt=resul.current.dt;
-            let temp=resul.current.temp;
-            let humid=resul.current.humidity;
-            let wnd=resul.current.wind_speed;
-            let uv=resul.current.uvi;
-            //let weather=resul.resul.current.weather
-
-            createToday(name,dt,temp,humid,wnd,uv)
-            // five day forecast
+            
             //day one
-            for (let i=1;i<6;i++){
-                let dt1=resul.daily[i].dt;
-                let temp1=resul.daily[i].temp.day;
-                let wind1=resul.daily[i].wind_speed;
-                createFiveDay(i);
+            for (let i=1;i<5;i++){
+                var temp=i*8;
+                let dt1=resul.list[temp].dt_txt;
+                let temp1=resul.list[temp].main.temp;
+                let humid1=resul.list[temp].main.humidity;
+                let wind1=resul.list[temp].wind.speed;
+                let img1=resul.list[temp].weather[0].icon;
+                createFiveDay(i,dt1,temp1,humid1,wind1,img1);
             }
             
             
             //displayRepos(results, user);
           });
         } else {
-          alert('Error: City Not Found');
+          alert('Error: Five Day not Found');
         }
       })
       .catch(function(error) {
-        alert("Unable to connect to Google Maps");
+        alert("Unable to connect to Five Day forecast");
       });
+
+
+
+
   };
 
   searchBtn.addEventListener("click",searchCity);
