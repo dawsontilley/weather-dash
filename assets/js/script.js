@@ -80,12 +80,32 @@ var clearCurrent= function (){
         return;
     }
     todayDel.remove();
-    for (var z=1;z<6;z++){
+    for (var z=0;z<6;z++){
     var fiveDel=document.querySelector("#day-"+z);
         if(fiveDel){
         fiveDel.remove();
         }
     }
+};
+
+var getTime=function(unix){
+    
+    // Create a new JavaScript Date object based on the timestamp
+    // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+    var date = new Date(unix * 1000);
+    // Hours part from the tiestamp
+    var actualdate = date.getDate();
+    // Minutes part from the timestamp
+    var minutes = "0" + date.getMinutes();
+    var day = date.getDay();
+    // Seconds part from the timestamp
+    var seconds = "0" + date.getSeconds();
+    
+    // Will display time in 10:30:23 format
+    //var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+    var newTime=actualdate+"/"+day
+    return(newTime);
+    
 };
 
 var handleHistory = function (event){
@@ -110,7 +130,7 @@ console.log(event.target);
 
 };
 
-
+// creates the today forecaset
 var createToday=function(city,date,temp,wind,humid,uv,imgCode){
     console.log("in create today");
     var todayDiv = document.createElement("div");
@@ -130,7 +150,7 @@ var createToday=function(city,date,temp,wind,humid,uv,imgCode){
     text_wind.textContent="Wind Speed: "+ wind;
 
     var text_humid= document.createElement("p");
-    text_humid.textContent="Wind Speed: "+ humid;
+    text_humid.textContent="Humidity: "+ humid;
 
 
     var uv_div=document.createElement("div");
@@ -148,16 +168,18 @@ var createToday=function(city,date,temp,wind,humid,uv,imgCode){
 
 
     uv_div.appendChild(text_uv);
+    todayDiv.appendChild(city_name);
     todayDiv.appendChild(text_date);
     todayDiv.appendChild(weather_img);
     todayDiv.appendChild(text_temp);
     todayDiv.appendChild(text_wind);
+    todayDiv.appendChild(text_humid);
     todayDiv.appendChild(uv_div);
     todayEl.appendChild(todayDiv);
 }
 
-//createToday("24/7/22",22,65,3.1,"01d");
 
+// creates the five day forecast
 var createFiveDay= function(daysout,date,temp,wind,humid,imgID){
 
     console.log("in create five day");
@@ -172,13 +194,13 @@ var createFiveDay= function(daysout,date,temp,wind,humid,imgID){
     text_date.textContent="Date: "+date;
 
     var text_temp= document.createElement("p");
-    text_temp.textContent="Temperature: "+temp;
+    text_temp.textContent="Temperature (F): "+temp;
 
     var text_wind= document.createElement("p");
-    text_wind.textContent="Wind Speed: "+ wind;
+    text_wind.textContent="Wind Speed (MPH): "+ wind;
 
     var text_humid= document.createElement("p");
-    text_humid.textContent="Wind Speed: "+ humid;
+    text_humid.textContent="Humidity: "+ humid;
 
 
     var uv_div=document.createElement("div");
@@ -195,47 +217,13 @@ var createFiveDay= function(daysout,date,temp,wind,humid,imgID){
     todayDiv.appendChild(weather_img);
     todayDiv.appendChild(text_temp);
     todayDiv.appendChild(text_wind);
+    todayDiv.appendChild(text_humid);
   
     fiveDayEl.appendChild(todayDiv);
 
 };
-/*
-for (var i=1;i<6;i++){
-    createFiveDay(i,"04,05,1999",44,55,5,"01d");
-};
 
-clearCurrent();
-
-var getCity = function(city) {
-    // format the github api url
-    
-    var apiUrl = "https://maps.googleapis.com/maps/api/geocode/json?address="+city+"&key=AIzaSyDwHybJMlRHSs9v9suUhunJX4LdKP-Q1CQ";
-    
-    // make a get request to url
-    fetch(apiUrl)
-      .then(function(response) {
-        // request was successful
-        if (response.ok) {
-          console.log(response);
-          response.json().then(function(resul) {
-            console.log(resul);
-            let lat=resul.results[0].geometry.location.lat;
-            let long=resul.results[0].geometry.location.lng;
-            console.log(lat);
-            console.log(long);
-            return lat,long;
-            //displayRepos(results, user);
-          });
-        } else {
-          alert('Error: City Not Found');
-        }
-      })
-      .catch(function(error) {
-        alert("Unable to connect to Google Maps");
-      });
-  };*/
-
-
+// gets the coordinates based on the city
   var getCity = function(city) {
     // format the github api url
     
@@ -261,58 +249,101 @@ var getCity = function(city) {
         }
       })
       .catch(function(error) {
-        alert("Unable to connect to Google Maps");
+        alert("Unable to connect to Open weather");
       });
   };
-  //getCity("Halifax");
-
-
-  var getIcon=function(icon){
-      var apiURL= "http://openweathermap.org/img/wn/"+icon+"@2x.png";
-    fetch (apiURL).then(function(response){
-        if (response.ok){
-            console.log(response);
-            response.json.then(function(result){
-                return response;
-            })
-        }
-    })
   
-    };
+//get UV from UV index
+  var getUV= function(coor){
+    //var fiveURL= "https://api.openweathermap.org/data/2.5/forecast?lat="+coordinates[0]+"&lon="+coordinates[1]+"&units=imperial&appid=21b731edfa8707cb82b913a8b6d8b8fc";
+    
+        newURL='https://api.openuv.io/api/v1/uv?lat=' + coor[0] + '&lng=' + coor[1]
 
-  var getWeather = function(name,coordinates) {
-    // format the github api url
-    console.log("IN GET WEATHER , Latitude: "+coordinates[0]+"Longitude: "+coordinates[1]);
-    //var apiUrl = "https://api.openweathermap.org/data/3.0/onecall?lat="+coordinates[0]+"&lon="+coordinates[1]+"&appid=21b731edfa8707cb82b913a8b6d8b8fc";
-    //https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}
-    //9971c39fce27741076215129d5ba7fbf
+    
+        
+        fetch(newURL, {
+          headers: {
+            'x-access-token': 'ac2eef338e284332eac275521df03add'
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          
+        }).then( function(response) {
+            // request was successful
+            if (response.ok) {
+                //return response.json();
+              //console.log(response);
+              response.json().then( function(resul) {
+                console.log(resul);
+                // current weather
+                let uv=resul.result.uv;
+                console.log("UV NOW" +uv);
+                return uv;
+              })}})};
+
+
+
+  var getWeather = async function(name,coordinates) {
+    
+    //console.log("IN GET WEATHER , Latitude: "+coordinates[0]+"Longitude: "+coordinates[1]);
+    
     var fiveURL= "https://api.openweathermap.org/data/2.5/forecast?lat="+coordinates[0]+"&lon="+coordinates[1]+"&units=imperial&appid=21b731edfa8707cb82b913a8b6d8b8fc";
 
     var currentURL="https://api.openweathermap.org/data/2.5/weather?lat="+coordinates[0]+"&lon="+coordinates[1]+"&units=imperial&appid=21b731edfa8707cb82b913a8b6d8b8fc";
 
-    // THE 5 DAY is here api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
-
-    // CURRENT is here https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
-    // make a get request to url
+    
+    
+    //var myUV=await getUV(coordinates).results.uv;
     fetch(currentURL)
       .then(function(response) {
         // request was successful
         if (response.ok) {
           //console.log(response);
-          response.json().then(function(resul) {
+          response.json().then(async function(resul) {
             console.log(resul);
             // current weather
             let dt=resul.dt;
+            let tz=resul.timezone;
+            dt =dt+tz;
+            let formatdt=getTime(dt);
             let temp=resul.main.temp;
             let humid=resul.main.humidity;
             let wnd=resul.wind.speed;
-            let uv= 4;
-            //resul.current.uvi;
             let imgID=resul.weather[0].icon;
-            console.log("Img ID: "+imgID);
-            //let weather=resul.resul.current.weather
+            //var uvInd= await getUV(coordinates);
 
-            createToday(name,dt,temp,humid,wnd,uv,imgID);
+            newURL='https://api.openuv.io/api/v1/uv?lat=' + coordinates[0] + '&lng=' + coordinates[1]
+
+    
+        // Default options are marked with *
+        fetch(newURL, {
+          headers: {
+            'x-access-token': 'ac2eef338e284332eac275521df03add'
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          //redirect: 'follow', // manual, *follow, error
+          //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+         // body: JSON.stringify(data) // body data type must match "Content-Type" header
+        }).then( function(response) {
+            // request was successful
+            if (response.ok) {
+                //return response.json();
+              //console.log(response);
+              response.json().then( function(resul) {
+                console.log(resul);
+                // current weather
+                let uv=resul.result.uv;
+                console.log("UV NOW" +uv);
+                
+                
+                //console.log("UV ID: "+uvInd);
+                //let weather=resul.resul.current.weather
+                //console.log(myUV);
+                createToday(name,formatdt,temp,humid,wnd,uv,imgID);
+              })}})
+            //console.log(uvInd);
+    
+            //resul.current.uvi;
+          
             // five day forecast
             //day one
             
@@ -337,7 +368,7 @@ var getCity = function(city) {
             // current weather
             
             //day one
-            for (let i=1;i<5;i++){
+            for (let i=0;i<5;i++){
                 var temp=i*8;
                 let dt1=resul.list[temp].dt_txt;
                 let temp1=resul.list[temp].main.temp;
