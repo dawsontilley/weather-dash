@@ -4,7 +4,28 @@ var Cor  =[44.6475811,-63.5727683];
 var todayEl=document.querySelector("#today");
 var fiveDayEl=document.querySelector("#five-day");
 var historyEl = document.querySelector("#history");
+var savedCitys=[];
 
+var saveCities = function() {
+    localStorage.setItem("citys", JSON.stringify(savedCitys));
+  };
+
+  var loadCities = function() {
+    cities = JSON.parse(localStorage.getItem("citys"));
+   
+    if (!cities) {
+       //console.log("no tasks");
+       return;
+       
+      };
+    
+    
+    for (var i=0;i<cities.length;i++){
+            console.log(cities[i]);
+            createHistory(cities[i]);
+       
+  }
+};
 
 var checkUV = function(uv){
     if (uv<2){
@@ -27,6 +48,8 @@ var searchCity =function(){
     getCity(myinput);
     }
     createHistory(myinput);
+    savedCitys.push(myinput);
+    saveCities(savedCitys);
     
 };
 
@@ -46,6 +69,8 @@ histP.innerText=name;
 histDiv.appendChild(histP);
 historyEl.appendChild(histDiv);
 historyEl.addEventListener("click",handleHistory);
+
+//savedCitys.push(name);
 
 }
 
@@ -339,5 +364,6 @@ var getCity = function(city) {
   };
 
   searchBtn.addEventListener("click",searchCity);
+  loadCities();
   //getCity("Halifax");
   
