@@ -5,11 +5,11 @@ var todayEl=document.querySelector("#today");
 var fiveDayEl=document.querySelector("#five-day");
 var historyEl = document.querySelector("#history");
 var savedCitys=[];
-
+//saves the cities to memory
 var saveCities = function() {
     localStorage.setItem("citys", JSON.stringify(savedCitys));
   };
-
+// loads cities on load
   var loadCities = function() {
     cities = JSON.parse(localStorage.getItem("citys"));
    
@@ -53,7 +53,7 @@ var searchCity =function(){
     
 };
 
-
+// creates the history when clicked
 var createHistory=function(name){
 var histDiv = document.createElement("div");
 //histDiv.setAttribute("data-lat",lat_long[0]);
@@ -87,7 +87,7 @@ var clearCurrent= function (){
         }
     }
 };
-
+// converts unix to date
 var getTime=function(unix){
     
     // Create a new JavaScript Date object based on the timestamp
@@ -107,7 +107,7 @@ var getTime=function(unix){
     return(newTime);
     
 };
-
+// handles the history when clicked
 var handleHistory = function (event){
 event.preventDefault;
 console.log(event.target);
@@ -164,7 +164,7 @@ var createToday=function(city,date,temp,wind,humid,uv,imgCode){
     weather_img.style.height="100px";
     weather_img.style.width="100px";
 
-    weather_img.src="http://openweathermap.org/img/wn/"+imgCode+"@2x.png";
+    weather_img.src="https://openweathermap.org/img/wn/"+imgCode+"@2x.png";
 
 
     uv_div.appendChild(text_uv);
@@ -209,7 +209,7 @@ var createFiveDay= function(daysout,date,temp,wind,humid,imgID){
     weather_img.style.height="100px";
     weather_img.style.width="100px";
 
-    weather_img.src="http://openweathermap.org/img/wn/"+imgID+"@2x.png";
+    weather_img.src="https://openweathermap.org/img/wn/"+imgID+"@2x.png";
 
 
    
@@ -227,7 +227,7 @@ var createFiveDay= function(daysout,date,temp,wind,humid,imgID){
   var getCity = function(city) {
     // format the github api url
     
-    var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q="+city+"&limit=5&appid=9971c39fce27741076215129d5ba7fbf";;
+    var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q="+city+"&limit=5&appid=9971c39fce27741076215129d5ba7fbf";;
     //"http://api.openweathermap.org/geo/1.0/direct?q="+London+"&limit=5&appid=9971c39fce27741076215129d5ba7fbf";
     // make a get request to url
     fetch(apiUrl)
